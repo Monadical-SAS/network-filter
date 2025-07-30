@@ -1,0 +1,17 @@
+services:
+  network-filter:
+    build: .
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - ALLOWED_DOMAINS=github.com,api.github.com,httpbin.org,raw.githubusercontent.com
+      # - DNS_SERVERS=8.8.8.8,8.8.4.4
+      # - REFRESH_INTERVAL=600 # Optional: Refresh interval in seconds (default: 300)
+      # - RUN_SELFTEST=true     # Optional: Run a self-test on startup (default: false)
+    command: ["/network-filter.sh"]
+    networks:
+      - public
+
+networks:
+  public:
+    driver: bridge
