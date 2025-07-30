@@ -18,7 +18,7 @@ The filter operates at the network level, meaning any container that shares its 
 ```bash
 docker run --cap-add NET_ADMIN \
   -e ALLOWED_DOMAINS="github.com,api.github.com" \
-  network-filter
+  monadicalsas/network-filter
 ```
 
 ### Docker Compose
@@ -30,7 +30,7 @@ This ensures the container can only access domains specified in `ALLOWED_DOMAINS
 ```yaml
 services:
   network-filter:
-    build: .
+    image: monadicalsas/network-filter:latest
     cap_add:
       - NET_ADMIN
     environment:
@@ -89,7 +89,7 @@ Enable self-test on startup to verify the configuration:
 docker run --cap-add NET_ADMIN \
   -e ALLOWED_DOMAINS="github.com" \
   -e RUN_SELFTEST=true \
-  network-filter
+  monadicalsas/network-filter
 ```
 
 Or run the self-test manually:
@@ -103,7 +103,7 @@ Test that allowed domains work while others are blocked:
 
 ```bash
 # Start the network filter container
-docker run -d --name net-filter --cap-add NET_ADMIN -e ALLOWED_DOMAINS="github.com" network-filter
+docker run -d --name net-filter --cap-add NET_ADMIN -e ALLOWED_DOMAINS="github.com" monadicalsas/network-filter
 
 # This will work - github.com is in the allowed list
 docker run --rm --network "container:net-filter" alpine ping -c 3 github.com
