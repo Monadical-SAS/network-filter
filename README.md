@@ -6,8 +6,7 @@ A lightweight Docker container that provides network filtering capabilities usin
 
 The network-filter uses a combination of:
 - **iptables**: Drops all outbound traffic by default, then allows only specific IP addresses resolved from allowed domains
-- **dnsmasq**: Acts as a local DNS server that only resolves allowed domains
-- **Dynamic IP resolution**: Periodically refreshes IP addresses for allowed domains to handle DNS changes
+- **dnsmasq**: Acts as a local DNS server that only resolves allowed domains, using ipset groups
 
 The filter operates at the network level, meaning any container that shares its network namespace will inherit these restrictions.
 
@@ -47,7 +46,6 @@ services:
 |---------------------|-------------|---------|
 | `ALLOWED_DOMAINS` | Comma-separated list of allowed domains with optional port specifications | (none - required) |
 | `DNS_SERVERS` | Comma-separated list of upstream DNS servers | `8.8.8.8,8.8.4.4` |
-| `REFRESH_INTERVAL` | How often to refresh domain IP addresses (seconds) | `300` |
 | `RUN_SELFTEST` | Run connectivity tests on startup | `false` |
 
 ### Domain and port specification
@@ -115,7 +113,6 @@ docker run --rm --network "container:net-filter" alpine ping -c 3 google.com
 ## Limitations
 
 - **IPv4 only**: Currently only supports IPv4 addresses. IPv6 traffic is blocked and AAAA DNS records are filtered out
-- Requires periodic refresh to handle DNS changes
 - All containers sharing the network namespace share the same restrictions
 
 ## Q&A

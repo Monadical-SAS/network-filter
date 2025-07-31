@@ -6,7 +6,8 @@ RUN apk add --no-cache \
     bind-tools \
     curl \
     bash \
-    iproute2
+    iproute2 \
+    ipset
 
 COPY network-filter.sh /network-filter.sh
 
