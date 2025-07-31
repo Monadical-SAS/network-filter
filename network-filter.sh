@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 # --- Configuration ---
 setup_env() {
@@ -54,8 +55,7 @@ add_domain_rule() {
         ports_to_allow=(80 443)
     fi
 
-    PRIMARY_DNS=$(echo "$DNS_SERVERS" | cut -d',' -f1 | xargs)
-    local ipv4_addresses=$(nslookup "$domain" "$PRIMARY_DNS" 2>/dev/null | awk '/^Address:/ && !/'$PRIMARY_DNS'/ { print $2 }' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$')
+    local ipv4_addresses=$(nslookup "$domain" 127.0.0.1 2>/dev/null | awk '/^Address:/ && !/127.0.0.1/ { print $2 }' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$')
 
     for ip in $ipv4_addresses; do
         if [[ -n "$ip" ]]; then
@@ -89,6 +89,8 @@ no-resolv
 no-poll
 log-queries
 filter-AAAA
+min-cache-ttl=$((REFRESH_INTERVAL * 2))
+max-cache-ttl=$((REFRESH_INTERVAL * 2))
 $(if [[ -n "$ALLOWED_DOMAINS" ]]; then
     IFS=',' read -ra DOMAINS <<< "$ALLOWED_DOMAINS"
     for domain in "${DOMAINS[@]}"; do
@@ -127,16 +129,16 @@ run_tests() {
 selftest() {
     setup_env
     setup_iptables
-    apply_domain_rules
     setup_dnsmasq
+    override_dns
 
     dnsmasq --test
 
     dnsmasq --no-daemon --log-facility=- &
     DNSMASQ_PID=$!
     sleep 3
+    apply_domain_rules
 
-    override_dns
 
     run_tests
 
@@ -147,14 +149,14 @@ selftest() {
 start() {
     setup_env
     setup_iptables
-    apply_domain_rules
     setup_dnsmasq
+    override_dns
 
     dnsmasq --no-daemon --log-facility=- &
     DNSMASQ_PID=$!
     sleep 3
 
-    override_dns
+    apply_domain_rules
 
     if [[ "$RUN_SELFTEST" == "true" ]]; then
         run_tests
@@ -171,6 +173,9 @@ start() {
         if [[ "$(cat /etc/resolv.conf | grep -c '127.0.0.1')" -eq 0 ]]; then
             override_dns
         fi
+
+        # Clear dnsmasq cache before refreshing rules
+        kill -HUP $DNSMASQ_PID 2>/dev/null || true
 
         setup_iptables
         apply_domain_rules
