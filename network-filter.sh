@@ -88,6 +88,7 @@ no-hosts
 no-resolv
 no-poll
 log-queries
+filter-AAAA
 $(if [[ -n "$ALLOWED_DOMAINS" ]]; then
     IFS=',' read -ra DOMAINS <<< "$ALLOWED_DOMAINS"
     for domain in "${DOMAINS[@]}"; do

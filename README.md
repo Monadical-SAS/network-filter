@@ -114,7 +114,7 @@ docker run --rm --network "container:net-filter" alpine ping -c 3 google.com
 
 ## Limitations
 
-- Only supports IPv4 addresses
+- **IPv4 only**: Currently only supports IPv4 addresses. IPv6 traffic is blocked and AAAA DNS records are filtered out
 - Requires periodic refresh to handle DNS changes
 - All containers sharing the network namespace share the same restrictions
 
