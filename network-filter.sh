@@ -12,12 +12,14 @@ setup_env() {
     DNS_SERVERS="${DNS_SERVERS:-8.8.8.8,8.8.4.4}"
     RUN_SELFTEST="${RUN_SELFTEST:-false}"
     IPSET_TIMEOUT="${IPSET_TIMEOUT:-600}"  # 10 minutes default
+    ENABLE_DOCKER_DNS="${ENABLE_DOCKER_DNS:-true}"  # Enable Docker embedded DNS for service discovery
 
     echo "--- Configuration ---"
     echo "DNS Servers: $DNS_SERVERS"
     echo "Allowed Domains: $ALLOWED_DOMAINS"
     echo "IPSet Timeout: $IPSET_TIMEOUT seconds"
     echo "Run Selftest on start: $RUN_SELFTEST"
+    echo "Docker DNS (127.0.0.11): $ENABLE_DOCKER_DNS"
 }
 
 # --- Domain Parsing ---
@@ -129,6 +131,11 @@ no-poll
 log-queries
 filter-AAAA
 EOF
+
+    # Add Docker embedded DNS for service discovery if enabled
+    if [[ "$ENABLE_DOCKER_DNS" == "true" ]]; then
+        echo "server=127.0.0.11" >> /etc/dnsmasq.conf
+    fi
 
     # Add server and ipset entries for all domains
     for domain in "${!DOMAIN_PORTSET[@]}"; do

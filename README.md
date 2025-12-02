@@ -46,6 +46,7 @@ services:
 |---------------------|-------------|---------|
 | `ALLOWED_DOMAINS` | Comma-separated list of allowed domains with optional port specifications | (none - required) |
 | `DNS_SERVERS` | Comma-separated list of upstream DNS servers | `8.8.8.8,8.8.4.4` |
+| `ENABLE_DOCKER_DNS` | Enable Docker embedded DNS (127.0.0.11) for service discovery | `true` |
 | `RUN_SELFTEST` | Run connectivity tests on startup | `false` |
 
 ### Domain and port specification
